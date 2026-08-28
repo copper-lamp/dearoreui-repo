@@ -2,7 +2,6 @@ package("dearoreui")
     set_description("DearOreUI: header-only public API for OreUI client mods")
     set_license("CC0-1.0")
 
-    -- 自托管 header-only 包：直接 git 引用 Dear-OreUI，无 release zip。
     -- 版本 = git ref（commit/tag）。升级头时更新下方 commit id 并推送到本 repo。
     add_urls("https://github.com/copper-lamp/Dear-OreUI.git")
     add_versions("v0.1.1", "67716d60155b007e585cda8e37948931c9cb7ee8")
