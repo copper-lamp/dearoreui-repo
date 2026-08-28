@@ -1,0 +1,33 @@
+package("dearoreui")
+    set_description("DearOreUI: header-only public API for OreUI client mods")
+    set_license("CC0-1.0")
+
+    -- 自托管 header-only 包：直接 git 引用 Dear-OreUI，无 release zip。
+    -- 版本 = git ref（commit/tag）。升级头时更新下方 commit id 并推送到本 repo。
+    add_urls("https://github.com/copper-lamp/Dear-OreUI.git")
+    add_versions("v0.1.1", "67716d60155b007e585cda8e37948931c9cb7ee8")
+
+    -- 公开头平铺在 include/dearoreui/{api,bridge}，内部互引用是 "api/..."、"bridge/..."，
+    -- 因此把 includedir 指到 include/dearoreui，consumers 才能 `#include "api/..."`。
+    on_load(function(package)
+        package:add("includedirs", "include/dearoreui")
+    end)
+
+    on_install(function(package)
+        -- 从 Dear-OreUI 源码直接拷贝公开头（单一来源 = src/，与 DearOreUI/xmake.lua
+        -- 的 after_install 白名单一致；不维护 include/ 副本，避免漂移）。
+        local inc = path.join(package:installdir(), "include", "dearoreui")
+        os.mkdir(path.join(inc, "api", "types"))
+        os.mkdir(path.join(inc, "api", "manifest"))
+        os.mkdir(path.join(inc, "bridge"))
+        os.vcp("src/api/I*.h",                 path.join(inc, "api") .. "/")
+        os.vcp("src/api/types/*.h",            path.join(inc, "api", "types") .. "/")
+        os.vcp("src/bridge/DearOreUIBridge.h", path.join(inc, "bridge") .. "/")
+        for _, f in ipairs({
+            "ModManifest.h", "ResourceManifest.h", "ScriptManifest.h",
+            "StyleSheetManifest.h", "UiManifest.h", "Dependency.h", "Permission.h",
+        }) do
+            os.vcp("src/api/manifest/" .. f, path.join(inc, "api", "manifest") .. "/")
+        end
+    end)
+package_end()
